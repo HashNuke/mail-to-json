@@ -1,0 +1,2 @@
+%{"gen_smtp": {:git, "git://github.com/Vagabond/gen_smtp.git", "8f7ba01172e679e8b4262334cefc3451b4c36777", []},
+  "poison": {:git, "git://github.com/devinus/poison.git", "7d78c836fcd535f4277ab0a19903c18f04104e2d", []}}
