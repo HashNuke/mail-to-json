@@ -4,7 +4,6 @@ defmodule MailToJson.SmtpHandler do
   require Logger
   alias MailToJson.SmtpHandler.State
 
-  @relay true
   @type error_message :: {:error, String.t, State.t}
 
 
@@ -86,12 +85,7 @@ defmodule MailToJson.SmtpHandler do
   end
 
 
-  @doc """
-  Accept receipt of mail to an email address or reject it
-
-    * Return `{:ok, state}` to accept
-    * Return `{:error, error_message, state}` to reject
-  """
+  @doc """Accept receipt of mail to an email address or reject it"""
   @spec handle_RCPT(binary(), State.t) :: {:ok, State.t} | {:error, String.t, State.t}
   def handle_RCPT(to, state) do
     {:ok, state}
@@ -105,15 +99,11 @@ defmodule MailToJson.SmtpHandler do
 
   def handle_DATA(from, to, data, state) do
     unique_id = MailToJson.create_unique_id()
-    relay = state.options[:relay] || false
 
-    cond do
-      relay == true -> relay_mail(from, to, data)
-      relay == false ->
-        Logger.debug("Message from #{from} to #{to} with body length #{byte_size(data)} queued as #{unique_id}")
-        mail = parse_mail(data, state, unique_id)
-    end
+    Logger.debug("Message from #{from} to #{to} with body length #{byte_size(data)} queued as #{unique_id}")
 
+    mail = parse_mail(data, state, unique_id)
+    IO.inspect mail
     {:ok, unique_id, state}
   end
 
@@ -126,25 +116,15 @@ defmodule MailToJson.SmtpHandler do
 
 
   @spec handle_VRFY(binary, State.t) :: {:ok, String.t, State.t} | {:error, String.t, State.t}
-  def handle_VRFY("someuser", state) do
-    {:ok, "someuser@#{:smtp_util.guess_FQDN()}", state}
+  def handle_VRFY(user, state) do
+    {:ok, "#{user}@#{:smtp_util.guess_FQDN()}", state}
   end
 
-  def handle_VRFY(_address, state) do
-    {:error, "252 VRFY disabled by policy, just send some mail", state}
-  end
 
   @spec handle_other(binary, binary, State.t) :: {String.t, State.t}
   def handle_other(verb, _args, state) do
     {["500 Error: command not recognized : '", verb, "'"], state}
   end
-
-
-  @spec terminate(any, State.t) :: {:ok, any, State.t}
-  def terminate(reason, state) do
-    {:ok, reason, state}
-  end
-
 
 
   defp parse_mail(data, state, unique_id) do
@@ -155,7 +135,7 @@ defmodule MailToJson.SmtpHandler do
         to:      :proplists.get_value("To", mail_meta),
         from:    :proplists.get_value("From", mail_meta),
         subject: :proplists.get_value("Subject", mail_meta),
-        body: body
+        body:    body
       }
     rescue
       reason ->
@@ -164,14 +144,8 @@ defmodule MailToJson.SmtpHandler do
   end
 
 
-  defp relay_mail(_, [], _) do
-    :ok
+  @spec terminate(any, State.t) :: {:ok, any, State.t}
+  def terminate(reason, state) do
+    {:ok, reason, state}
   end
-
-  defp relay_mail(from, [to|rest], data) do
-    [_user, host] = String.split(to, "@")
-    :gen_smtp_client.send({from, [to], :erlang.binary_to_list(data)}, [relay: host])
-    relay_mail(from, rest, data)
-  end
-
 end

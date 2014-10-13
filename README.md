@@ -39,7 +39,10 @@ Assuming you have Erlang and Elixir installed.
 
 * Handle custom SMTP extensions
   ```
-  @spec handle_RCPT_extension(binary, State.t) :: {:ok, State.t} | :error
-  handle_RCPT_extension(extension, _state)
+  handle_RCPT_extension(binary, State.t) :: {:ok, State.t} | :error
   ```
-* Handle 
+
+* Handle any other SMTP verb
+  ```
+  handle_other(binary, binary, State.t) :: {String.t, State.t}
+  ```
