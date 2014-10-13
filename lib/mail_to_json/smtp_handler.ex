@@ -83,36 +83,15 @@ defmodule MailToJson.SmtpHandler do
   end
 
 
-  # @doc Handle an extension to the MAIL verb. Return either `{ok, State}' or `error' to reject
-  # the option.
-  @spec handle_MAIL_extension(binary, State.t) :: {:ok, State.t} | :error
-  def handle_MAIL_extension("X-SomeExtension" = extension, state) do
-    :io.format("Mail from extension ~s~n", [extension])
-    # any MAIL extensions can be handled here
-    {:ok, state}
-  end
-
-  def handle_MAIL_extension(extension, _state) do
-    :io.format("Unknown MAIL FROM extension ~s~n", [extension])
-    :error
-  end
-
-
-  @spec handle_RCPT(binary(), State.t) :: {:ok, State.t} | {:error, String.t, State.t}
-  def handle_RCPT("nobody@example.com", state) do
-    {:error, "550 No such recipient", state}
-  end
-
-
   @doc """
   Accept receipt of mail to an email address or reject it
 
     * Return `{:ok, state}` to accept
     * Return `{:error, error_message, state}` to reject
-
   """
+  @spec handle_RCPT(binary(), State.t) :: {:ok, State.t} | {:error, String.t, State.t}
   def handle_RCPT(to, state) do
-    :io.format("Mail to ~s~n", [to])
+
     {:ok, state}
   end
 
@@ -130,16 +109,17 @@ defmodule MailToJson.SmtpHandler do
       relay == true -> relay_mail(from, to, data)
       relay == false ->
         Logger.debug("Message from #{from} to #{to} with body length #{byte_size(data)} queued as #{unique_id}")
-        parse_mail(data, state, unique_id)
+        mail = parse_mail(data, state, unique_id)
     end
 
     {:ok, unique_id, state}
   end
 
 
+  @doc "Reset internal state"
   @spec handle_RSET(State.t) :: State.t
   def handle_RSET(state) do
-    state # reset any relevant internal state
+    state
   end
 
 
@@ -157,35 +137,6 @@ defmodule MailToJson.SmtpHandler do
     {["500 Error: command not recognized : '", verb, "'"], state}
   end
 
-  # this callback is OPTIONAL
-  # it only gets called if you add AUTH to your ESMTP extensions
-  # @spec handle_AUTH('login' | 'plain' | 'cram-md5', binary, binary | {binary, binary}, State.t) :: {:ok, State.t} | :error
-  # def handle_AUTH(type, "username", "PaSSw0rd", state) when type =:= login; type =:= plain do
-  #   {ok, state}
-  # end
-
-  def handle_AUTH('cram-md5', "username", {_digest, seed}, state) do
-    IO.inspect "AUTH CRAM ERROR"
-    case :smtp_util.compute_cram_digest("PaSSw0rd", seed) do
-      _digest ->
-        {:ok, state}
-      # _ ->  # never comes to this, because previous case matches all
-      #   :error
-    end
-  end
-
-  def handle_AUTH(_type, _username, _password, _state) do
-    IO.inspect "AUTH ERROR"
-    :error
-  end
-
-  # this callback is OPTIONAL
-  # it only gets called if you add STARTTLS to your ESMTP extensions
-  @spec handle_STARTTLS(State.t) :: State.t
-  def handle_STARTTLS(state) do
-    :io.format("TLS Started~n")
-    state
-  end
 
   @spec terminate(any, State.t) :: {:ok, any, State.t}
   def terminate(reason, state) do
@@ -193,11 +144,17 @@ defmodule MailToJson.SmtpHandler do
   end
 
 
-  # Internal Functions
 
   defp parse_mail(data, state, unique_id) do
     try do
-      IO.inspect :mimemail.decode(data)
+      {content_type_name, content_subtype_name, mail_meta, _, body} = :mimemail.decode(data)
+      %{
+        content_type: "#{content_type_name}/#{content_subtype_name}",
+        to:      :proplists.get_value("To", mail_meta),
+        from:    :proplists.get_value("From", mail_meta),
+        subject: :proplists.get_value("Subject", mail_meta),
+        body: body
+      }
     rescue
       reason ->
         :io.format("Message decode FAILED with ~p:~n", [reason])
