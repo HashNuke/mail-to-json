@@ -35,28 +35,27 @@ defmodule MailToJson.SmtpHandler do
   end
 
 
-  # %% @doc Handle the HELO verb from the client. Arguments are the Hostname sent by the client as
-  # %% part of the HELO and the callback State.
-  # %%
-  # %% Return values are `{ok, State}' to simply continue with a new state, `{ok, MessageSize, State}'
-  # %% to continue with the SMTP session but to impose a maximum message size (which you can determine
-  # %% , for example, by looking at the IP address passed in to the init function) and the new callback
-  # %% state. You can reject the HELO by returning `{error, Message, State}' and the Message will be
-  # %% sent back to the client. The reject message MUST contain the SMTP status code, eg. 554.
+  @doc """
+  Handshake with the client
+
+    * Return `{:ok, max_message_size, state}` if we handle the hostname
+      ```
+      # max_message_size should be an integer
+      # For 10kb max size, the return value would look like this
+      {:ok, 1024 * 10, state}
+      ```
+    * Return `{:error, error_message, state}` if we don't handle mail for the hostname
+      ```
+      # error_message must be prefixed with standard SMTP error code
+      # looks like this
+      554 invalid hostname
+      554 Dear human from Sector-8614 we don't handle mail for this domain name
+      ```
+  """
   @spec handle_HELO(binary, State.t) :: {:ok, pos_integer, State.t} | {:ok, State.t} | error_message
-  def handle_HELO("invalid", state) do
-    # contrived example
-    {:error, "554 invalid hostname", state}
-  end
-
-  # def handle_HELO("trusted_host", state) do
-  #   {:ok, state} # no size limit because we trust them.
-  # end
-
   def handle_HELO(hostname, state) do
     :io.format("250 HELO from #{hostname}~n")
-    {:ok, 655360, state} # 640kb of HELO should be enough for anyone.
-    # If {ok, state} was returned here, we'd use the default 10mb limit
+    {:ok, 655360, state} # we'll say 640kb of max size
   end
 
 
@@ -193,11 +192,6 @@ defmodule MailToJson.SmtpHandler do
   def handle_STARTTLS(state) do
     :io.format("TLS Started~n")
     state
-  end
-
-  @spec code_change(any, State.t, any) :: {:ok, State.t}
-  def code_change(_old_vsn, state, _extra) do
-    {:ok, state}
   end
 
   @spec terminate(any, State.t) :: {:ok, any, State.t}
