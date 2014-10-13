@@ -18,17 +18,20 @@ defmodule MailToJson do
     recepients = [{"Jane", "jane@#{host}"}]
     sender = {"John Doe", "john@#{host}"}
 
-    send_mail(sender, recipients, subject, body)
+    send_mail(sender, recepients, "Hello World", "This is a test mail")
   end
 
 
   def send_mail(sender, recipients, subject, body) do
-    sender    = participant_email(sender)
+    host = :net_adm.localhost
+    sender     = participant_email(sender)
     recipients = participant_emails(recipients)
 
     formatted_sender     = format_participant(sender)
-    formatted_recipients = format_participants(recipients) |> Enum.join(", ")
+    formatted_recipients = format_participants(recipients)
     formatted_mail_body  = mail_body(formatted_sender, formatted_recipients, subject, body)
+
+    mail = {sender, recipients, formatted_mail_body}
 
     client_options = [relay: host, username: sender, password: "mypassword", port: 2525]
     :gen_smtp_client.send(mail, client_options)
@@ -36,7 +39,12 @@ defmodule MailToJson do
 
 
   defp mail_body(subject, sender, recipients, body) do
-    "Subject: #{subject}\r\nFrom: #{sender}\r\nTo: #{recipients}\r\n\r\n#{body}"
+    'Subject: #{subject}\r\nFrom: #{sender}\r\nTo: #{recipients}\r\n\r\n#{body}'
+  end
+
+
+  defp participant_emails([]) do
+    []
   end
 
 
@@ -45,13 +53,13 @@ defmodule MailToJson do
   end
 
 
-  defp participant_emails([recipient | recipients], collected_emails) do
-    new_collected_emails = [participant_email(recipient) | collected_emails]
-    participant_emails(recipient, new_collected_emails)
+  defp participant_emails([participant | participants], collected_emails \\ []) do
+    new_collected_emails = [participant_email(participant) | collected_emails]
+    participant_emails(participants, new_collected_emails)
   end
 
 
-  defp participant_email({name, email}) do
+  defp participant_email({_name, email}) do
     email
   end
 
@@ -66,18 +74,43 @@ defmodule MailToJson do
   end
 
 
-  defp format_participant(email) when is_binary(participant_email) do
-    participant_email
+  defp format_participant(email) when is_binary(email) do
+    email
   end
 
 
-  defp format_recipients([], formatted_recipients) do
-    formatted_recipients
+  defp format_participants([]) do
+    []
   end
 
 
-  defp format_recipients([recipient | recipients], formatted_recipients) do
-    new_formatted_recipients = [format_recipient(recipient) | format_recipients]
-    format_recipients recipients, new_formatted_recipients
+  defp format_participants([], formatted) do
+    formatted
+  end
+
+
+  defp format_participants([participant | participants], formatted \\ []) do
+    new_formatted = [format_participant(participant) | formatted]
+    format_participants participants, new_formatted
+  end
+
+
+  def create_unique_id do
+    ref_list = :erlang.now()
+    |> :erlang.term_to_binary()
+    |> :erlang.md5()
+    |> :erlang.bitstring_to_list()
+
+    :lists.flatten Enum.map(ref_list, fn(n)-> :io_lib.format("~2.16.0b", [n]) end)
+  end
+
+
+  def set_smtp_password do
+    Application.put_env :mail_to_json, :smtp_password, MailToJson.create_unique_id
+  end
+
+
+  def get_smtp_password do
+    Application.get_env :mail_to_json, :smtp_password
   end
 end
