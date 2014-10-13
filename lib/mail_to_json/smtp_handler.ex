@@ -1,6 +1,5 @@
 defmodule MailToJson.SmtpHandler do
   @behaviour :gen_smtp_server_session
-
   require Logger
   alias MailToJson.SmtpHandler.State
 
@@ -20,7 +19,6 @@ defmodule MailToJson.SmtpHandler do
     * `{:ok, banner, state}` - to send `banner` to client and initializes session with `state`
     * `{:stop, reason, message}` - to exit session with `reason` and send `message` to client
   """
-
   @spec init(binary, non_neg_integer, tuple, list) :: {:ok, String.t, State.t} | {:stop, any, String.t}
   def init(hostname, session_count, _client_ip_address, options) do
     case session_count > 20 do
@@ -71,27 +69,21 @@ defmodule MailToJson.SmtpHandler do
   end
 
 
-  @doc """
-  Accept or reject mail to incoming addresses here.
-
-  Return `{:ok, state}` to accept mail for incoming address.
-
-  If you handle mail only for `hashnuke@exmaple.com`, then you can reject mail
-  to other addresses by returning `{:error, smtp_error_message, state}`
-  """
+  @doc "Accept or reject mail to incoming addresses here"
   @spec handle_MAIL(binary, State.t) :: {:ok, State.t} | error_message
   def handle_MAIL(sender, state) do
     {:ok, state}
   end
 
 
-  @doc """Accept receipt of mail to an email address or reject it"""
+  @doc "Accept receipt of mail to an email address or reject it"
   @spec handle_RCPT(binary(), State.t) :: {:ok, State.t} | {:error, String.t, State.t}
   def handle_RCPT(to, state) do
     {:ok, state}
   end
 
 
+  @doc "Handle mail data. This includes subject, body, etc"
   @spec handle_DATA(binary, [binary,...], binary, State.t) :: {:ok, String.t, State.t} | {:error, String.t, State.t}
   def handle_DATA(_from, _to, "", state) do
     {:error, "552 Message too small", state}
@@ -115,15 +107,27 @@ defmodule MailToJson.SmtpHandler do
   end
 
 
+  @doc """
+  Verify incoming address.
+
+  This I heard was a security issue since people were able to check which accounts existed on the system. We'll just say yes to all incoming addresses.
+  """
   @spec handle_VRFY(binary, State.t) :: {:ok, String.t, State.t} | {:error, String.t, State.t}
   def handle_VRFY(user, state) do
     {:ok, "#{user}@#{:smtp_util.guess_FQDN()}", state}
   end
 
 
+  @doc "No other SMTP verbs are recognized"
   @spec handle_other(binary, binary, State.t) :: {String.t, State.t}
   def handle_other(verb, _args, state) do
     {["500 Error: command not recognized : '", verb, "'"], state}
+  end
+
+
+  @spec terminate(any, State.t) :: {:ok, any, State.t}
+  def terminate(reason, state) do
+    {:ok, reason, state}
   end
 
 
@@ -143,9 +147,4 @@ defmodule MailToJson.SmtpHandler do
     end
   end
 
-
-  @spec terminate(any, State.t) :: {:ok, any, State.t}
-  def terminate(reason, state) do
-    {:ok, reason, state}
-  end
 end
