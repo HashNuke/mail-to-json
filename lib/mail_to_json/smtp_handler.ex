@@ -26,15 +26,10 @@ defmodule MailToJson.SmtpHandler do
     * `{:stop, reason, message}` - to exit session with `reason` and send `message` to client
   """
   @spec init(binary, non_neg_integer, tuple, list) :: {:ok, String.t, State.t} | {:stop, any, String.t}
-  def init(hostname, session_count, _client_ip_address, options) do
-    case session_count > 20 do
-      false ->
-        banner = [hostname, " ESMTP mail-to-json server"]
-        state  = %State{options: options}
-        {:ok, banner, state}
-      true ->
-        {:stop, :normal, ["#{@smtp_too_busy} ", hostname, " is too busy to accept mail right now"]}
-    end
+  def init(hostname, _session_count, _client_ip_address, options) do
+    banner = [hostname, " ESMTP mail-to-json server"]
+    state  = %State{options: options}
+    {:ok, banner, state}
   end
 
 
@@ -89,6 +84,17 @@ defmodule MailToJson.SmtpHandler do
   end
 
 
+  @doc """
+  Verify incoming address.
+
+  This I heard was a security issue since people were able to check which accounts existed on the system. We'll just say yes to all incoming addresses.
+  """
+  @spec handle_VRFY(binary, State.t) :: {:ok, String.t, State.t} | {:error, String.t, State.t}
+  def handle_VRFY(user, state) do
+    {:ok, "#{user}@#{:smtp_util.guess_FQDN()}", state}
+  end
+
+
   @doc "Handle mail data. This includes subject, body, etc"
   @spec handle_DATA(binary, [binary,...], binary, State.t) :: {:ok, String.t, State.t} | {:error, String.t, State.t}
   def handle_DATA(_from, _to, "", state) do
@@ -110,17 +116,6 @@ defmodule MailToJson.SmtpHandler do
   @spec handle_RSET(State.t) :: State.t
   def handle_RSET(state) do
     state
-  end
-
-
-  @doc """
-  Verify incoming address.
-
-  This I heard was a security issue since people were able to check which accounts existed on the system. We'll just say yes to all incoming addresses.
-  """
-  @spec handle_VRFY(binary, State.t) :: {:ok, String.t, State.t} | {:error, String.t, State.t}
-  def handle_VRFY(user, state) do
-    {:ok, "#{user}@#{:smtp_util.guess_FQDN()}", state}
   end
 
 

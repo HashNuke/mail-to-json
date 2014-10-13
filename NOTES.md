@@ -156,9 +156,89 @@ end
 
 ### lib/mail_to_json/smtp_handler.ex
 
-This is pretty large but it is simple.
+`MailToJson.SmtpHandler` module is pretty large but it is simple. We have certain module attributes in order to make error codes readable.
+
 
 #### init/4
+
+This function is called by `gen_smtp` when a new mail arrives. It initializes a new session to serve the client. It is passed the following arguments:
+
+* hostname - the SMTP server's hostname
+* session_count - number of mails currently being handled. We can then choose to reject the current mail session based on this.
+* client_ip_address - IP address of the client
+* options - the `callbackoptions` passed to `:gen_smtp_server.start/2`
+
+The return value should be the banner that is shown to the client. This is sort of the welcome banner. You can display anything you want.
+
+```
+def init(hostname, _session_count, _client_ip_address, options) do
+  banner = [hostname, " ESMTP mail-to-json server"]
+  state  = %State{options: options}
+  {:ok, banner, state}
+end
+```
+
+#### handle_HELO/2
+
+As soon as the client successfully connects. It sends a HELO message. This function handles the HELO message. We just reply with our response.
+
+```
+def handle_HELO(hostname, state) do
+  # This is how we respond to the client
+  :io.format("#{@smtp_requested_action_okay} HELO from #{hostname}~n")
+
+  # We return the max size of the mail the that we will allow the client to send
+  {:ok, 10 * 1024, state}
+end
+```
+
+#### handle_EHLO/2
+
+This is basically like a patch over the older HELO. It allows servers to respond with the ESMTP extensions that the SMTP server supports.
+
+```
+def handle_EHLO(_hostname, extensions, state) do
+  supported_extensions = case (state.options[:auth] || false) do
+    true ->
+      extensions ++ [{"AUTH", "PLAIN LOGIN CRAM-MD5"}, {"STARTTLS", true}]
+    false ->
+      extensions
+  end
+  {:ok, supported_extensions, state}
+end
+```
+
+#### handle_MAIL/2
+
+Accept or reject mail from addresses here. We'll allow all senders to send us mail.
+
+```
+def handle_MAIL(sender, state) do
+  {:ok, state}
+end
+```
+
+#### handle_VRFY/2
+
+Accept mail only for the accounts that exist in the system. We'll just say that all accounts are valid.
+
+```
+def handle_VRFY(user, state) do
+  {:ok, "#{user}@#{:smtp_util.guess_FQDN()}", state}
+end
+```
+
+#### handle_RCPT/2
+
+Responds to the client with a receipt that the mail to the recipient was received and handled. We'll
+
+```
+def handle_RCPT(to, state) do
+  {:ok, state}
+end
+```
+
+#### handle_
 
 
 ## References
