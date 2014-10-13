@@ -104,13 +104,4 @@ defmodule MailToJson do
     :lists.flatten Enum.map(ref_list, fn(n)-> :io_lib.format("~2.16.0b", [n]) end)
   end
 
-
-  def set_smtp_password do
-    Application.put_env :mail_to_json, :smtp_password, MailToJson.create_unique_id
-  end
-
-
-  def get_smtp_password do
-    Application.get_env :mail_to_json, :smtp_password
-  end
 end

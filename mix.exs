@@ -10,7 +10,7 @@ defmodule MailToJson.Mixfile do
 
 
   def application do
-    [applications: [:logger],
+    [applications: [:logger, :httpoison],
      mod: {MailToJson, []}]
   end
 
