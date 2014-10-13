@@ -29,3 +29,17 @@ Assuming you have Erlang and Elixir installed.
 
 * TODO set valid emails in the config file and a password
 * TODO set valid
+
+
+## Learning
+
+* 554 is the smtp error code to reject domain
+
+#### Other SMTP VERBS to handle
+
+* Handle custom SMTP extensions
+  ```
+  @spec handle_RCPT_extension(binary, State.t) :: {:ok, State.t} | :error
+  handle_RCPT_extension(extension, _state)
+  ```
+* Handle 

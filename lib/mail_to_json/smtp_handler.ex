@@ -1,6 +1,7 @@
 defmodule MailToJson.SmtpHandler do
   @behaviour :gen_smtp_server_session
 
+  require Logger
   alias MailToJson.SmtpHandler.State
 
   @relay true
@@ -102,23 +103,17 @@ defmodule MailToJson.SmtpHandler do
     {:error, "550 No such recipient", state}
   end
 
+
+  @doc """
+  Accept receipt of mail to an email address or reject it
+
+    * Return `{:ok, state}` to accept
+    * Return `{:error, error_message, state}` to reject
+
+  """
   def handle_RCPT(to, state) do
     :io.format("Mail to ~s~n", [to])
-    # you can accept or reject RCPT TO addesses here, one per call
     {:ok, state}
-  end
-
-
-  @spec handle_RCPT_extension(binary, State.t) :: {:ok, State.t} | :error
-  def handle_RCPT_extension("X-SomeExtension" = extension, state) do
-    # any RCPT TO extensions can be handled here
-    :io.format("Mail to extension ~s~n", [extension])
-    {:ok, state}
-  end
-
-  def handle_RCPT_extension(extension, _state) do
-    :io.format("Unknown RCPT TO extension ~s~n", [extension])
-    :error
   end
 
 
@@ -129,18 +124,15 @@ defmodule MailToJson.SmtpHandler do
 
   def handle_DATA(from, to, data, state) do
     unique_id = MailToJson.create_unique_id()
-    relay = :proplists.get_value(:relay, state.options, false)
+    relay = state.options[:relay] || false
 
     cond do
       relay == true -> relay_mail(from, to, data)
       relay == false ->
-        :io.format("message from ~s to ~p queued as ~s, body length ~p~n", [from, to, unique_id, byte_size(data)])
-        if :proplists.get_value(:parse, state.options, false) do
-          parse_mail(data, state, unique_id)
-        end
+        Logger.debug("Message from #{from} to #{to} with body length #{byte_size(data)} queued as #{unique_id}")
+        parse_mail(data, state, unique_id)
     end
 
-    # At this point, if we return ok, we've accepted responsibility for the email
     {:ok, unique_id, state}
   end
 
@@ -149,6 +141,7 @@ defmodule MailToJson.SmtpHandler do
   def handle_RSET(state) do
     state # reset any relevant internal state
   end
+
 
   @spec handle_VRFY(binary, State.t) :: {:ok, String.t, State.t} | {:error, String.t, State.t}
   def handle_VRFY("someuser", state) do
