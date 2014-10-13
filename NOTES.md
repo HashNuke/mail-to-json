@@ -163,4 +163,5 @@ This is pretty large but it is simple.
 
 ## References
 
-* <http://the-welters.com/professional/smtp.html>
+* SMTP commands - <http://the-welters.com/professional/smtp.html>
+* SMTP error codes - <http://www.greenend.org.uk/rjk/tech/smtpreplies.html>
