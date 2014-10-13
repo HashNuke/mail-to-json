@@ -107,6 +107,7 @@ defmodule MailToJson.SmtpHandler do
     Logger.debug("Message from #{from} to #{to} with body length #{byte_size(data)} queued as #{unique_id}")
 
     mail = parse_mail(data, state, unique_id)
+    #TODO send http request
     IO.inspect mail
     {:ok, unique_id, state}
   end

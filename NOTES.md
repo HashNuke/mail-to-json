@@ -238,7 +238,32 @@ def handle_RCPT(to, state) do
 end
 ```
 
-#### handle_
+#### handle_DATA/4
+
+Handle data from the mail. We'll parse the mail here and send a webhook to our app.
+
+```
+def handle_DATA(from, to, data, state) do
+  unique_id = MailToJson.create_unique_id()
+
+  Logger.debug("Message from #{from} to #{to} with body length #{byte_size(data)} queued as #{unique_id}")
+
+  mail = parse_mail(data, state, unique_id)
+  #TODO send http request
+  {:ok, unique_id, state}
+end
+```
+
+### handle_other/3
+
+Used to indicate that no other SMTP verb is supported
+
+```
+def handle_other(verb, _args, state) do
+  {["#{@smtp_unrecognized_command} Error: command not recognized : '", verb, "'"], state}
+end
+```
+
 
 
 ## References
