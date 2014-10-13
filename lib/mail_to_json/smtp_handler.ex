@@ -45,6 +45,7 @@ defmodule MailToJson.SmtpHandler do
       # For 10kb max size, the return value would look like this
       {:ok, 1024 * 10, state}
       ```
+
     * Return `{:error, error_message, state}` if we don't handle mail for the hostname
       ```
       # error_message must be prefixed with standard SMTP error code
@@ -72,13 +73,16 @@ defmodule MailToJson.SmtpHandler do
   end
 
 
-  # %% Return values are either `{ok, State}' or `{error, Message, State}' as before.
+  @doc """
+  Accept or reject mail to incoming addresses here.
+
+  Return `{:ok, state}` to accept mail for incoming address.
+
+  If you handle mail only for `hashnuke@exmaple.com`, then you can reject mail
+  to other addresses by returning `{:error, smtp_error_message, state}`
+  """
   @spec handle_MAIL(binary, State.t) :: {:ok, State.t} | error_message
   def handle_MAIL(sender, state) do
-    IO.inspect "Got mail"
-    IO.inspect sender
-    :io.format("Mail from ~s~n", [sender])
-    # you can accept or reject the FROM address here
     {:ok, state}
   end
 
@@ -91,7 +95,6 @@ defmodule MailToJson.SmtpHandler do
   """
   @spec handle_RCPT(binary(), State.t) :: {:ok, State.t} | {:error, String.t, State.t}
   def handle_RCPT(to, state) do
-
     {:ok, state}
   end
 
