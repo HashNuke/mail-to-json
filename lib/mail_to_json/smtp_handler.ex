@@ -8,29 +8,28 @@ defmodule MailToJson.SmtpHandler do
   @type error_message :: {:error, String.t, State.t}
 
 
-# %% @doc Initialize the callback module's state for a new session.
-# %% The arguments to the function are the SMTP server's hostname (for use in the SMTP anner),
-# %% The number of current sessions (eg. so you can do session limiting), the IP address of the
-# %% connecting client, and a freeform list of options for the module. The Options are extracted
-# %% from the `callbackoptions' parameter passed into the `gen_smtp_server_session' when it was
-# %% started.
-# %%
-# %% If you want to continue the session, return `{ok, Banner, State}' where Banner is the SMTP
-# %% banner to send to the client and State is the callback module's state. The State will be passed
-# %% to ALL subsequent calls to the callback module, so it can be used to keep track of the SMTP
-# %% session. You can also return `{stop, Reason, Message}' where the session will exit with Reason
-# %% and send Message to the client.
+  @doc """
+  Every time a mail arrives, a process is started is kicked started to handle it.
+  The init/4 function accepts the following args
+
+    * hostname - the SMTP server's hostname
+    * session_count - number of mails currently being handled
+    * client_ip_address - IP address of the client
+    * options - the `callbackoptions` passed to `:gen_smtp_server.start/2`
+
+    Return
+    * `{:ok, banner, state}` - to send `banner` to client and initializes session with `state`
+    * `{:stop, reason, message}` - to exit session with `reason` and send `message` to client
+  """
+
   @spec init(binary, non_neg_integer, tuple, list) :: {:ok, String.t, State.t} | {:stop, any, String.t}
-  def init(hostname, session_count, address, options) do
-    :io.format("peer: ~p~n", [address])
+  def init(hostname, session_count, _client_ip_address, options) do
     case session_count > 20 do
       false ->
-        banner = [hostname, " ESMTP smtp_server_example"]
-        state = %State{options: options}
-        IO.inspect state
+        banner = [hostname, " ESMTP mail-to-json server"]
+        state  = %State{options: options}
         {:ok, banner, state}
       true ->
-        :io.format("Connection limit exceeded~n")
         {:stop, :normal, ["421 ", hostname, " is too busy to accept mail right now"]}
     end
   end
