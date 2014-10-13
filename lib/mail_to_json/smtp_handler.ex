@@ -5,6 +5,12 @@ defmodule MailToJson.SmtpHandler do
 
   @type error_message :: {:error, String.t, State.t}
 
+  # SMTP error codes
+  @smtp_too_busy 421
+  @smtp_requested_action_okay 250
+  @smtp_mail_action_abort 552
+  @smtp_unrecognized_command 500
+
 
   @doc """
   Every time a mail arrives, a process is started is kicked started to handle it.
@@ -27,7 +33,7 @@ defmodule MailToJson.SmtpHandler do
         state  = %State{options: options}
         {:ok, banner, state}
       true ->
-        {:stop, :normal, ["421 ", hostname, " is too busy to accept mail right now"]}
+        {:stop, :normal, ["#{@smtp_too_busy} ", hostname, " is too busy to accept mail right now"]}
     end
   end
 
@@ -52,20 +58,20 @@ defmodule MailToJson.SmtpHandler do
   """
   @spec handle_HELO(binary, State.t) :: {:ok, pos_integer, State.t} | {:ok, State.t} | error_message
   def handle_HELO(hostname, state) do
-    :io.format("250 HELO from #{hostname}~n")
+    :io.format("#{@smtp_requested_action_okay} HELO from #{hostname}~n")
     {:ok, 655360, state} # we'll say 640kb of max size
   end
 
 
   @spec handle_EHLO(binary, list, State.t) :: {:ok, list, State.t} | error_message
   def handle_EHLO(_hostname, extensions, state) do
-    my_extensions = case (state.options[:auth] || false) do
+    supported_extensions = case (state.options[:auth] || false) do
       true ->
         extensions ++ [{"AUTH", "PLAIN LOGIN CRAM-MD5"}, {"STARTTLS", true}]
       false ->
         extensions
     end
-    {:ok, my_extensions, state}
+    {:ok, supported_extensions, state}
   end
 
 
@@ -86,7 +92,7 @@ defmodule MailToJson.SmtpHandler do
   @doc "Handle mail data. This includes subject, body, etc"
   @spec handle_DATA(binary, [binary,...], binary, State.t) :: {:ok, String.t, State.t} | {:error, String.t, State.t}
   def handle_DATA(_from, _to, "", state) do
-    {:error, "552 Message too small", state}
+    {:error, "#{@smtp_mail_action_abort} Message too small", state}
   end
 
   def handle_DATA(from, to, data, state) do
@@ -121,7 +127,7 @@ defmodule MailToJson.SmtpHandler do
   @doc "No other SMTP verbs are recognized"
   @spec handle_other(binary, binary, State.t) :: {String.t, State.t}
   def handle_other(verb, _args, state) do
-    {["500 Error: command not recognized : '", verb, "'"], state}
+    {["#{@smtp_unrecognized_command} Error: command not recognized : '", verb, "'"], state}
   end
 
 
