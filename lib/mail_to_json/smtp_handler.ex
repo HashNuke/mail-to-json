@@ -75,14 +75,14 @@ defmodule MailToJson.SmtpHandler do
 
   @doc "Accept or reject mail to incoming addresses here"
   @spec handle_MAIL(binary, State.t) :: {:ok, State.t} | error_message
-  def handle_MAIL(sender, state) do
+  def handle_MAIL(_sender, state) do
     {:ok, state}
   end
 
 
   @doc "Accept receipt of mail to an email address or reject it"
   @spec handle_RCPT(binary(), State.t) :: {:ok, State.t} | {:error, String.t, State.t}
-  def handle_RCPT(to, state) do
+  def handle_RCPT(_to, state) do
     {:ok, state}
   end
 
@@ -139,7 +139,7 @@ defmodule MailToJson.SmtpHandler do
   end
 
 
-  defp parse_mail(data, state, unique_id) do
+  defp parse_mail(data, _state, _unique_id) do
     try do
       # :mimemail.decode/1 is provided by gen_smtp
       :mimemail.decode(data)
