@@ -108,6 +108,10 @@ defmodule MailToJson.SmtpHandler do
 
     mail = parse_mail(data, state, unique_id)
     #TODO send http request
+    mail_json = Poison.encode!(mail)
+
+    HTTPoison.post(MailToJson.webhook_url, mail_json, %{"Accept" => "application/json"})
+
     IO.inspect mail
     {:ok, unique_id, state}
   end

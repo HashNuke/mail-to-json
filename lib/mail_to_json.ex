@@ -38,7 +38,7 @@ defmodule MailToJson do
   end
 
 
-  defp mail_body(subject, sender, recipients, body) do
+  defp mail_body(sender, recipients, subject, body) do
     'Subject: #{subject}\r\nFrom: #{sender}\r\nTo: #{recipients}\r\n\r\n#{body}'
   end
 
@@ -104,4 +104,13 @@ defmodule MailToJson do
     :lists.flatten Enum.map(ref_list, fn(n)-> :io_lib.format("~2.16.0b", [n]) end)
   end
 
+
+  def smtp_port do
+    Application.get_env :mail_to_json, :smtp_port
+  end
+
+
+  def webhook_url do
+    Application.get_env :mail_to_json, :webhook_url
+  end
 end
