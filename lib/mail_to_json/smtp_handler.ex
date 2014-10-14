@@ -142,8 +142,6 @@ defmodule MailToJson.SmtpHandler do
   defp parse_mail(data, state, unique_id) do
     try do
       # :mimemail.decode/1 is provided by gen_smtp
-      IO.inspect :mimemail.decode(data)
-
       :mimemail.decode(data)
       |> MailParser.parse_mail_data()
     rescue
