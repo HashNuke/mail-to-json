@@ -50,7 +50,8 @@ mix new mail_to_json --sup
 
 In your project's `mix.exs` file add the following libraries as dependencies:
 
-* `gen_smtp` - (Erlang SMTP library
+* `eiconv` - Erlang library that interfaces with [iconv](http://en.wikipedia.org/wiki/Iconv) using NIFs
+* `gen_smtp` - Erlang SMTP library
 * `poison` - pure Elixir JSON parser
 * `httpoison` - HTTP client for Elixir
 
@@ -59,9 +60,10 @@ Your `deps/0` function in mix.exs should look like the following:
 ```
 defp deps do
   [
+    {:eiconv,    github: "zotonic/eiconv"},
     {:gen_smtp,  github: "Vagabond/gen_smtp"},
-    {:poison,    github: "devinus/poison"},
-    {:httpoison, github: "edgurgel/httpoison"}
+    {:poison,    "~> 1.2.0"},
+    {:httpoison, "~> 0.5.0"}
   ]
 end
 ```

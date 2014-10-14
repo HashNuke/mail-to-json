@@ -17,6 +17,7 @@ defmodule MailToJson.Mixfile do
 
   defp deps do
     [
+      {:eiconv,    github: "zotonic/eiconv"},
       {:gen_smtp,  github: "Vagabond/gen_smtp"},
       {:poison,    "~> 1.2.0"},
       {:httpoison, "~> 0.5.0"}
