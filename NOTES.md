@@ -1,6 +1,12 @@
 # A quick and dirty MailGun clone in Elixir
 
 
+## Email as an API
+
+Email is one of the oldest social networks. It has a very large user base and it still works. Want to share news about your new born? Shares sales report with your team? Invite people to a party?
+
+Email works. What more? If you accept incoming mail from your users, it comes with free authentication :)
+
 ## SMTP
 
 [SMTP](http://en.wikipedia.org/wiki/Simple_Mail_Transfer_Protocol) is 8yrs older than me (the first RFC was in 1982). The API is simple:
@@ -21,12 +27,6 @@ I made up that request-response. `DUDE` is not an SMTP verb. But there are many 
 
 > I apologize if I've convinced you that SMTP is very simple. There's much more to it. And our fellow humans have done great work to extend it by building stuff for it or on top of it. You can read more [here](http://en.wikipedia.org/wiki/Simple_Mail_Transfer_Protocol#Related_Requests_For_Comments).
 
-
-## Email as an API
-
-Email is one of the oldest social networks. It has a very large user base and it still works. Want to share news about your new born? Shares sales report with your team? Invite people to a party?
-
-Email works. What more? If you accept incoming mail from your users, it comes with free authentication :)
 
 Sadly, setting up an SMTP server to handle incoming email still needs a great [bullet-proof guide](http://iafonov.github.io/blog/hardcore-email-infrastructure-setup.html). There are services like [MailGun](http://mailgun.com), [Postmark](http://postmarkapp.com), etc, that make it easier for developers to handle incoming mail for apps. They receive incoming mail on your behalf and POST them as JSON to your app.
 
@@ -128,6 +128,15 @@ These configuration options are read from system env vars. Now when we want to s
 
 We are now ready to add nut and bolts to get our stuff running
 
+## Forwarding mail to port 2525
+
+Port 25 is pretty standard for SMTP port. In order to avoid having to run the application with sudo, our app listens to 2525. So we'll have to forward traffic from port 25 to port 2525.
+
+On Ubuntu, this can be done by the following command:
+
+```shell
+$ sudo iptables -t nat -A PREROUTING -p tcp -m tcp --dport 25 -j REDIRECT --to-ports 2525
+```
 
 ## The app
 
@@ -295,21 +304,29 @@ end
 ```
 
 
-On the whole, the `MailToJson.SmtpHandler` looks like [this](https://github.com/HashNuke/mail-to-json/blob/0b4988b55b99bce678c079e485e1d7f448b8e6a2/lib//mail_to_json/smtp_handler.ex).
+On the whole, the `MailToJson.SmtpHandler` looks like [this](https://github.com/HashNuke/mail-to-json/blob/5641df4d4eff817bd3601764f3db36afccdb0080/lib//mail_to_json/smtp_handler.ex).
+
 
 ### Other miscellaneous modules and functions
 
-* To handle parsing mail data that is handed to us by gen_smtp, we have a [`MailToJson.MailParser`](https://github.com/HashNuke/mail-to-json/blob/0b4988b55b99bce678c079e485e1d7f448b8e6a2/lib/mail_to_json/mail_parser.ex) module. This is responsible for handing us an Elixir map of data, that we can encode to JSON.
+* To handle parsing mail data that is handed to us by gen_smtp, we have a [`MailToJson.MailParser`](https://github.com/HashNuke/mail-to-json/blob/5641df4d4eff817bd3601764f3db36afccdb0080/lib/mail_to_json/mail_parser.ex) module. This is responsible for handing us an Elixir map of data, that we can encode to JSON.
 
-* In order to add some saner ways of sending mail, I've added `MailToJson.send_mail/4`
+* In order to send email in a sane way, I've added `MailToJson.send_mail/4`
 
-* The above required some utility functions in `lib/mail_to_json/utils.ex`, which look like this [this](https://github.com/HashNuke/mail-to-json/blob/0b4988b55b99bce678c079e485e1d7f448b8e6a2/lib/mail_to_json/utils.ex)
+* The above required some utility functions in `lib/mail_to_json/utils.ex`, which look like this [this](https://github.com/HashNuke/mail-to-json/blob/5641df4d4eff817bd3601764f3db36afccdb0080/lib/mail_to_json/utils.ex)
 
 * Also added `MailToJson.test_mail/0` as a short-hand to send a test mail from localhost itself. This helps in testing and development :)
 
+
 ## Closing notes
 
-We built it ~! That is under 300 lines of code. Along with primitives that come with OTP itself, Erlang and Elixir libraries have made it very easy for us to build a stripped down version of a relatively complex service.
+There's no security. There's no myriad of config options. We don't yet handle attachments. My console is screams a few warnings about unimplemented functions for the `:gen_smtp_server_session` behaviour. But...
+
+We built it ~!
+
+We can handle html and plain text emails.
+
+This is under 300 lines of code. Along with primitives that come with OTP itself, Erlang and Elixir libraries have made it very easy for us to build a stripped down version of a relatively complex service.
 
 
 ## References
