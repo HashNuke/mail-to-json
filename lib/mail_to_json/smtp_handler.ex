@@ -1,7 +1,9 @@
 defmodule MailToJson.SmtpHandler do
   @behaviour :gen_smtp_server_session
   require Logger
+
   alias MailToJson.SmtpHandler.State
+  alias MailToJson.Utils
 
   @type error_message :: {:error, String.t, State.t}
 
@@ -102,7 +104,7 @@ defmodule MailToJson.SmtpHandler do
   end
 
   def handle_DATA(from, to, data, state) do
-    unique_id = MailToJson.create_unique_id()
+    unique_id = Utils.create_unique_id()
 
     Logger.debug("Message from #{from} to #{to} with body length #{byte_size(data)} queued as #{unique_id}")
 
