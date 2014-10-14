@@ -268,9 +268,9 @@ end
 ```
 
 
-On the whole [this](https://github.com/HashNuke/mail-to-json/blob/56b7648bdfa77b478d9d8/lib//mail_to_json/smtp_handler.ex) is what `smtp_handler.ex` looks it looks like.
+On the whole, the `MailToJson.SmtpHandler` looks like [this](https://github.com/HashNuke/mail-to-json/blob/56b7648bdfa77b478d9d8/lib//mail_to_json/smtp_handler.ex).
 
-We'll also need some extra utilitity functions in `lib/mail_to_json.ex`, which makes it look like this [this](https://github.com/HashNuke/mail-to-json/blob/56b7648bdfa77b478d9d8/lib/mail_to_json.ex)
+In order to add some saner ways of sending mail, I've add `MailToJson.send_mail/4` and `MailToJson.test_mail` in order to send a test mail. That required some extra utility functions in `lib/mail_to_json/utils.ex`, which look like this [this](https://github.com/HashNuke/mail-to-json/blob/56b7648bdfa77b478d9d8/lib/mail_to_json/utils.ex)
 
 
 ## Closing notes
