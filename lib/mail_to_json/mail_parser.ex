@@ -13,20 +13,18 @@ defmodule MailToJson.MailParser do
     when content_subtype_name == "plain" or content_subtype_name == "html" do
 
     meta_data = extract_mail_meta(mail_meta)
-
-    data = case content_subtype_name do
+    case content_subtype_name do
       "html"  -> %{"html_body"  => body}
       "plain" -> %{"plain_body" => body}
     end
-    |> Map.merge meta_data
+    |> Map.merge(meta_data)
   end
 
 
-  defp parse_mail_bodies([], %{}),       do: %{}
   defp parse_mail_bodies([], collected), do: collected
 
   defp parse_mail_bodies([body | bodies], collected \\ %{}) do
-    new_collected = Map.merge collected, parse_mail_data(body)
+    new_collected = Map.merge(collected, parse_mail_data(body))
     parse_mail_bodies(bodies, new_collected)
   end
 
