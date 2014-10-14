@@ -275,7 +275,7 @@ We'll also need some extra utilitity functions in `lib/mail_to_json.ex`, which m
 
 ## Closing notes
 
-We built it ~! Erlang and Elixir libraries have made it very easy for us to build a stripped down version of what I would consider a relatively complex.
+We built it ~! That is under 300 lines of code. Along with primitives that come with OTP itself, Erlang and Elixir libraries have made it very easy for us to build a stripped down version of a relatively complex.
 
 
 ## References
