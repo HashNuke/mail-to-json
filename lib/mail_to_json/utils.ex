@@ -48,8 +48,8 @@ defmodule MailToJson.Utils do
 
 
   def parse_participants(participants) when is_binary(participants) do
-    String.split(participants)
-    parse_participants(participants, [])
+    participant_list = String.split(participants, ",")
+    parse_participants(participant_list, [])
   end
 
 
