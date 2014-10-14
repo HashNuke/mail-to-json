@@ -46,7 +46,6 @@ defmodule MailToJson do
   defp participant_emails([]),            do: []
   defp participant_emails([], collected), do: collected
 
-
   defp participant_emails([participant | participants], collected \\ []) do
     new_collected = [participant_email(participant) | collected]
     participant_emails(participants, new_collected)
@@ -63,7 +62,6 @@ defmodule MailToJson do
 
   defp format_participants([]),            do: []
   defp format_participants([], formatted), do: formatted
-
 
   defp format_participants([participant | participants], formatted \\ []) do
     new_formatted = [format_participant(participant) | formatted]
