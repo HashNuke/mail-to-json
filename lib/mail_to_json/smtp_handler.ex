@@ -63,7 +63,7 @@ defmodule MailToJson.SmtpHandler do
 
   @spec handle_EHLO(binary, list, State.t) :: {:ok, list, State.t} | error_message
   def handle_EHLO(_hostname, extensions, state) do
-    {:ok, [], state}
+    {:ok, extensions, state}
   end
 
 
