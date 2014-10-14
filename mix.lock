@@ -1,5 +1,5 @@
 %{"gen_smtp": {:git, "git://github.com/Vagabond/gen_smtp.git", "8f7ba01172e679e8b4262334cefc3451b4c36777", []},
-  "hackney": {:package, "0.14.1"},
-  "httpoison": {:package, "0.5.0"},
-  "idna": {:package, "1.0.1"},
-  "poison": {:package, "1.2.0"}}
+  "hackney": {:hex, :hackney, "0.14.1"},
+  "httpoison": {:hex, :httpoison, "0.5.0"},
+  "idna": {:hex, :idna, "1.0.1"},
+  "poison": {:hex, :poison, "1.2.0"}}
