@@ -63,13 +63,7 @@ defmodule MailToJson.SmtpHandler do
 
   @spec handle_EHLO(binary, list, State.t) :: {:ok, list, State.t} | error_message
   def handle_EHLO(_hostname, extensions, state) do
-    supported_extensions = case (state.options[:auth] || false) do
-      true ->
-        extensions ++ [{"AUTH", "PLAIN LOGIN CRAM-MD5"}, {"STARTTLS", true}]
-      false ->
-        extensions
-    end
-    {:ok, supported_extensions, state}
+    {:ok, [], state}
   end
 
 
