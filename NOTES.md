@@ -249,7 +249,10 @@ def handle_DATA(from, to, data, state) do
   Logger.debug("Message from #{from} to #{to} with body length #{byte_size(data)} queued as #{unique_id}")
 
   mail = parse_mail(data, state, unique_id)
-  #TODO send http request
+  mail_json = Poison.encode!(mail)
+
+  HTTPoison.post(MailToJson.webhook_url, mail_json, %{"Accept" => "application/json"})
+
   {:ok, unique_id, state}
 end
 ```
@@ -264,6 +267,15 @@ def handle_other(verb, _args, state) do
 end
 ```
 
+
+On the whole [this](https://github.com/HashNuke/mail-to-json/blob/56b7648bdfa77b478d9d8/lib//mail_to_json/smtp_handler.ex) is what `smtp_handler.ex` looks it looks like.
+
+We'll also need some extra utilitity functions in `lib/mail_to_json.ex`, which makes it look like this [this](https://github.com/HashNuke/mail-to-json/blob/56b7648bdfa77b478d9d8/lib/mail_to_json.ex)
+
+
+## Closing notes
+
+We built it ~! Erlang and Elixir libraries have made it very easy for us to build a stripped down version of what I would consider a relatively complex.
 
 
 ## References
