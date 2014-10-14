@@ -18,8 +18,8 @@ defmodule MailToJson.Mixfile do
   defp deps do
     [
       {:gen_smtp,  github: "Vagabond/gen_smtp"},
-      {:poison,    github: "devinus/poison"},
-      {:httpoison, github: "edgurgel/httpoison"}
+      {:poison,    "~> 1.2.0"},
+      {:httpoison, "~> 0.5.0"}
     ]
   end
 end
