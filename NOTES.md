@@ -7,7 +7,7 @@ Email is one of the oldest social networks. It has a very large user base and it
 
 Email works. What more? If you accept incoming mail from your users, it comes with free authentication :)
 
-## SMTP
+## SMTP - the protocol that powers Email
 
 [SMTP](http://en.wikipedia.org/wiki/Simple_Mail_Transfer_Protocol) is 8yrs older than me (the first RFC was in 1982). The API is simple:
 
@@ -322,7 +322,7 @@ On the whole, the `MailToJson.SmtpHandler` looks like [this](https://github.com/
 
 There's no security. There's no myriad of config options. We don't yet handle attachments. My console is screams a few warnings about unimplemented functions for the `:gen_smtp_server_session` behaviour. But...
 
-We built it ~!
+**We built it ~!**
 
 We can handle html and plain text emails.
 
