@@ -4,6 +4,7 @@ defmodule MailToJson.SmtpHandler do
 
   alias MailToJson.SmtpHandler.State
   alias MailToJson.Utils
+  alias MailToJson.MailParser
 
   @type error_message :: {:error, String.t, State.t}
 
@@ -142,14 +143,9 @@ defmodule MailToJson.SmtpHandler do
     try do
       # :mimemail.decode/1 is provided by gen_smtp
       IO.inspect :mimemail.decode(data)
-      {content_type_name, content_subtype_name, mail_meta, _, body} = :mimemail.decode(data)
-      %{
-        content_type: "#{content_type_name}/#{content_subtype_name}",
-        to:      :proplists.get_value("To", mail_meta),
-        from:    :proplists.get_value("From", mail_meta),
-        subject: :proplists.get_value("Subject", mail_meta),
-        body:    body
-      }
+
+      :mimemail.decode(data)
+      |> MailParser.parse_mail_data()
     rescue
       reason ->
         :io.format("Message decode FAILED with ~p:~n", [reason])
