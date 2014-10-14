@@ -24,7 +24,7 @@ I made up that request-response. `DUDE` is not an SMTP verb. But there are many 
 
 ## Email as an API
 
-SMTP is one of the oldest APIs. It has a very large user base and it still works. Want to share news about your new born? Shares sales report with your team? Invite people to a party?
+Email is one of the oldest social networks. It has a very large user base and it still works. Want to share news about your new born? Shares sales report with your team? Invite people to a party?
 
 Email works. What more? If you accept incoming mail from your users, it comes with free authentication :)
 
@@ -35,7 +35,7 @@ Sadly, setting up an SMTP server to handle incoming email still needs a great [b
 
 Since I started working on Erlang (and later on Elixir), I've been curious to try handling incoming mail with it. I've always believed that the nature of the language and the primitives that OTP provides makes it easy to build applications that can accept and process incoming mail. My luck turned gold when I hit upon an SMTP server example, within the source code of an Erlang library called [gen_smtp](https://github.com/Vagabond/gen_smtp/blob/master/src/smtp_server_example.erl).
 
-I'll try and walk you through some code to understand (sufficiently) and hack it up to get a quick and dirty mail-to-json API up and running.
+I'll try and walk you through some code to (sufficiently) understand and hack it up to get a quick and dirty mail-to-json API up and running.
 
 
 ## Generating a new Elixir mix project
@@ -163,10 +163,10 @@ end
 
 This function is called by `gen_smtp` when a new mail arrives. It initializes a new session to serve the client. It is passed the following arguments:
 
-* hostname - the SMTP server's hostname
-* session_count - number of mails currently being handled. We can then choose to reject the current mail session based on this.
-* client_ip_address - IP address of the client
-* options - the `callbackoptions` passed to `:gen_smtp_server.start/2`
+* `hostname` - the SMTP server's hostname
+* `session_count` - number of mails currently being handled. We can then choose to reject the current mail session based on this.
+* `client_ip_address` - IP address of the client
+* `options` - the `callbackoptions` passed to `:gen_smtp_server.start/2`
 
 The return value should be the banner that is shown to the client. This is sort of the welcome banner. You can display anything you want.
 
