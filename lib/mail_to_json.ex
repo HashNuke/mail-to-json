@@ -43,50 +43,26 @@ defmodule MailToJson do
   end
 
 
-  defp participant_emails([]) do
-    []
+  defp participant_emails([]),            do: []
+  defp participant_emails([], collected), do: collected
+
+
+  defp participant_emails([participant | participants], collected \\ []) do
+    new_collected = [participant_email(participant) | collected]
+    participant_emails(participants, new_collected)
   end
 
 
-  defp participant_emails([], collected_emails) do
-    collected_emails
-  end
+  defp participant_email({_name, email}),              do: email
+  defp participant_email(email) when is_binary(email), do: email
 
 
-  defp participant_emails([participant | participants], collected_emails \\ []) do
-    new_collected_emails = [participant_email(participant) | collected_emails]
-    participant_emails(participants, new_collected_emails)
-  end
+  defp format_participant({name, email}), do: "#{name} <#{email}>"
+  defp format_participant(email) when is_binary(email), do: email
 
 
-  defp participant_email({_name, email}) do
-    email
-  end
-
-
-  defp participant_email(email) when is_binary(email) do
-    email
-  end
-
-
-  defp format_participant({name, email}) do
-    "#{name} <#{email}>"
-  end
-
-
-  defp format_participant(email) when is_binary(email) do
-    email
-  end
-
-
-  defp format_participants([]) do
-    []
-  end
-
-
-  defp format_participants([], formatted) do
-    formatted
-  end
+  defp format_participants([]),            do: []
+  defp format_participants([], formatted), do: formatted
 
 
   defp format_participants([participant | participants], formatted \\ []) do
@@ -105,12 +81,8 @@ defmodule MailToJson do
   end
 
 
-  def smtp_port do
-    Application.get_env :mail_to_json, :smtp_port
+  def config(name) do
+    Application.get_env :mail_to_json, name
   end
 
-
-  def webhook_url do
-    Application.get_env :mail_to_json, :webhook_url
-  end
 end
