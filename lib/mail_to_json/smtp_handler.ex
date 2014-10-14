@@ -140,6 +140,7 @@ defmodule MailToJson.SmtpHandler do
 
   defp parse_mail(data, state, unique_id) do
     try do
+      # :mimemail.decode/1 is provided by gen_smtp
       {content_type_name, content_subtype_name, mail_meta, _, body} = :mimemail.decode(data)
       %{
         content_type: "#{content_type_name}/#{content_subtype_name}",
