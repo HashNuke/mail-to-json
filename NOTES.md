@@ -310,7 +310,7 @@ On the whole, the `MailToJson.SmtpHandler` looks like [this](https://github.com/
 
 ### JSON data in the webhook
 
-The JSON data that is POSTed to the server will look like this:
+The JSON data that is POSTed to the webhook url will look like this:
 
 ```javascript
 {
