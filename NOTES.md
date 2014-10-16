@@ -129,7 +129,11 @@ Port 25 is standard for the SMTP port. In order to avoid having to run the appli
 
 On Ubuntu, this can be done by the following command:
 
-    $ sudo iptables -t nat -A PREROUTING -p tcp -m tcp --dport 25 -j REDIRECT --to-ports 2525
+```shell
+$ sudo iptables -t nat -A PREROUTING -p tcp -m tcp --dport 25 -j REDIRECT --to-ports 2525
+```
+
+To be able to receive mail on a remote server, you'll also need to setup DNS records. Refer to the [readme](https://github.com/HashNuke/mail-to-json/blob/b12de94cb966a99039d081e8fc3c794b770974eb/README.md#setup-receiving-mail) for detailed instructions.
 
 ## The app
 
