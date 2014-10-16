@@ -7,15 +7,38 @@ Receives email and forwards it to your app as a JSON webhook (aka stripped down 
 
 Assuming you have Erlang and Elixir installed.
 
-* Install dependencies: `mix deps.get`
+* Install dependencies:
+  ```shell
+  $ mix deps.get
+  ```
 * Set the webhook url by setting system env var `M2J_WEBHOOK_URL`
-* Follow the next section for local or remote setup
+  ```shell
+  export M2J_WEBHOOK_URL="http://example.com/foo/bar"
+  ```
+* Follow the next section to be able to receive mail on your server
 * Start server with Elixir console: `iex -S mix`
 
 
-## Setup receiving mail
+## Setup to receive mail
 
-### Remote setup (vps and such)
+#### Local setup
+
+Forward port 25 to 2525 on your server
+
+* For linux
+  ```shell
+  # You'll have to run the above command everytime you start the computer
+  # or add it permanently to your iptables.
+  $ sudo iptables -t nat -A PREROUTING -p tcp -m tcp --dport 25 -j REDIRECT --to-ports 2525
+  ```
+* For Mac (I think this works. Please send a PR if it's wrong)
+  ```shell
+  sudo ipfw add fwd 127.0.0.1,25 tcp from me to 127.0.0.1 dst-port 2525
+  ```
+
+#### Remote setup (vps and such)
+
+Follow the local setup instructions and along with the following:
 
 * Let's assume that you want to receive mail on the domain `foo.example.com`
 * Note the IP address of your server
@@ -23,20 +46,6 @@ Assuming you have Erlang and Elixir installed.
   * Add an `A record` with the IP address of your server, that points to `foo.example.com`
   * Add an `MX record` with the value `foo.example.com`
 
-
-### Local setup
-
-* Forward port 25 to 2525 on your server
-
-  * For linux
-    ```shell
-    # You'll have to run the above command everytime or add it permanently to your iptables.
-    $ sudo iptables -t nat -A PREROUTING -p tcp -m tcp --dport 25 -j REDIRECT --to-ports 2525
-    ```
-  * For Mac (I think this works, but please send a PR if it's wrong)
-    ```shell
-    sudo ipfw add fwd 127.0.0.1,25 tcp from me to 127.0.0.1 dst-port 2525
-    ```
 
 ## Playing with it
 
@@ -73,3 +82,5 @@ The JSON data in the webhook POST request will look like this:
 ## License
 
 Copyright &copy; 2014, Akash Manohar J, under the MIT License
+
+Basically, do whatever you want with it
