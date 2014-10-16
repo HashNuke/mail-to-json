@@ -308,6 +308,31 @@ end
 On the whole, the `MailToJson.SmtpHandler` looks like [this](https://github.com/HashNuke/mail-to-json/blob/5641df4d4eff817bd3601764f3db36afccdb0080/lib//mail_to_json/smtp_handler.ex).
 
 
+### JSON data in the webhook
+
+The JSON data that is POSTed to the server will look like this:
+
+```javascript
+{
+  "From": {
+    "name": "John Doe",
+    "email": "john@example.com"
+  },
+  "To": [
+    {
+      "name": "Jane Doe",
+      "email": "jane@example.com"
+    }
+  ],
+  "Subject": "Hello subject",
+  "plain_body": "Hello body\r\n",
+  "html_body": "<div dir=\"ltr\">Hello body</div>\r\n",
+  "Date": "Thu, 16 Oct 2014 19:33:12 +0530",
+  "Message-ID": "<CAEy2aia+pK5k3UqdcEPqB2JiLCRMQvyBWXtOAbV3Wmuo2QBtog@mail.gmail.com>"
+}
+```
+
+
 ### Other miscellaneous modules and functions
 
 * [MailToJson.MailParser](https://github.com/HashNuke/mail-to-json/blob/5641df4d4eff817bd3601764f3db36afccdb0080/lib/mail_to_json/mail_parser.ex) module - To handle parsing mail data that is handed to us by `gen_smtp`, we have a . This is responsible for handing us an Elixir map of data, that we can encode to JSON

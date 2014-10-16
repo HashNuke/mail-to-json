@@ -42,6 +42,28 @@ Assuming you have Erlang and Elixir installed.
 
 You can send a test mail from your local computer from the Elixir shell itself by running `MailToJson.test_mail`. You should receive a log message on the shell and also a POST request at the webhook url you configured.
 
+The JSON data in the webhook POST request will look like this:
+
+```javascript
+{
+  "From": {
+    "name": "John Doe",
+    "email": "john@example.com"
+  },
+  "To": [
+    {
+      "name": "Jane Doe",
+      "email": "jane@example.com"
+    }
+  ],
+  "Subject": "Hello subject",
+  "plain_body": "Hello body\r\n",
+  "html_body": "<div dir=\"ltr\">Hello body</div>\r\n",
+  "Date": "Thu, 16 Oct 2014 19:33:12 +0530",
+  "Message-ID": "<CAEy2aia+pK5k3UqdcEPqB2JiLCRMQvyBWXtOAbV3Wmuo2QBtog@mail.gmail.com>"
+}
+```
+
 ## Caveats
 
 * No security
