@@ -1,6 +1,6 @@
 # MailToJson
 
-Receives email and forwards it to your app as a JSON webhook (aka simple half-assed [Mailgun](http://mailgun.com) clone).
+Receives email and forwards it to your app as a JSON webhook (aka stripped down [MailGun](http://mailgun.com) clone).
 
 
 ## Install application
@@ -41,6 +41,12 @@ Assuming you have Erlang and Elixir installed.
 ## Playing with it
 
 You can send a test mail from your local computer from the Elixir shell itself by running `MailToJson.test_mail`. You should receive a log message on the shell and also a POST request at the webhook url you configured.
+
+## Caveats
+
+* No security
+* No myriad of configuration
+* Doesn't handle attachments
 
 ## License
 
