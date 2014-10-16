@@ -1,6 +1,6 @@
 # MailToJson
 
-Receives email and forwards it to your app as a JSON webhook (aka stripped down [MailGun](http://mailgun.com) clone).
+Receives email and forwards it to your app as a JSON webhook (aka stripped down [Mailgun](http://mailgun.com) clone).
 
 
 ## Install application

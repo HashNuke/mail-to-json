@@ -1,3 +1,4 @@
+A quick and dirty Mailgun clone in Elixir
 
 > If you want to go straight to the source code, [here it is](https://github.com/HashNuke/mail-to-json) ~!
 
